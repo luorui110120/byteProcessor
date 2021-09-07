@@ -102,6 +102,11 @@ class MY_GUI():
         self.utf8_to_hex_btn.grid(row=2, column=12)
         self.slip_to_point_btn = Button(self.init_window_name, text="/转.", bg="lightblue", width=10,command=self.slip_to_point_func)  # 调用内部方法  加()为直接调用
         self.slip_to_point_btn.grid(row=3, column=12)
+        self.lower_to_upper_btn = Button(self.init_window_name, text="upper", bg="lightblue", width=10,command=self.lower_to_upper_func)  # 调用内部方法  加()为直接调用
+        self.lower_to_upper_btn.grid(row=4, column=12)
+
+        self.upper_to_lower_btn = Button(self.init_window_name, text="lower", bg="lightblue", width=10,command=self.upper_to_lower_func)  # 调用内部方法  加()为直接调用
+        self.upper_to_lower_btn.grid(row=5, column=12)
 
         ####初始化字符串用于测试
         ##self.init_data_Text.insert(1.0,'7b22726573756c74223a2274727565222c22737461747573436f6465223a223fc4fe22c2270726f6d707431223a22e8afbf1ffe8aebae68890e58a')
@@ -241,6 +246,30 @@ class MY_GUI():
                 self.result_data_Text.delete(1.0,END)
                 self.result_data_Text.insert(1.0,"\nException: %s" %ex)
         self.result_data_Text.insert(1.0,"slip_to_point failed")
+    def lower_to_upper_func(self):
+        src = self.init_data_Text.get(1.0,END)
+        if src:
+            try:
+                ###//这里有时候会多一个字节出来,容易出错
+                if(len(src) > 0):
+                    self.return_outcome(src.upper())
+                    return
+            except Exception as ex:
+                self.result_data_Text.delete(1.0,END)
+                self.result_data_Text.insert(1.0,"\nException: %s" %ex)
+        self.result_data_Text.insert(1.0,"lower_to_upper failed")
+    def upper_to_lower_func(self):
+        src = self.init_data_Text.get(1.0,END)
+        if src:
+            try:
+                ###//这里有时候会多一个字节出来,容易出错
+                if(len(src) > 0):
+                    self.return_outcome(src.lower())
+                    return
+            except Exception as ex:
+                self.result_data_Text.delete(1.0,END)
+                self.result_data_Text.insert(1.0,"\nException: %s" %ex)
+        self.result_data_Text.insert(1.0,"lower_to_upper failed")
 def center_window(root, w, h):
     # 获取屏幕 宽、高
     ws = root.winfo_screenwidth()
