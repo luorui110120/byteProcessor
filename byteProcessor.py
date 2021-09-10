@@ -49,7 +49,7 @@ class MY_GUI():
         text_obj.edit_separator()
     #设置窗口
     def set_init_window(self):
-        self.init_window_name.title("空道 字节处理器_v1.3")           #窗口名
+        self.init_window_name.title("空道 字节处理器_v1.5")           #窗口名
         #self.init_window_name.geometry('320x160+10+10')                         #290 160为窗口大小，+10 +10 定义窗口弹出时的默认展示位置
         #self.init_window_name.geometry('1068x700+10+10')
         #self.init_window_name["bg"] = "pink"                                    #窗口背景色，其他背景色见：blog.csdn.net/chl0000/article/details/7657887
@@ -104,9 +104,12 @@ class MY_GUI():
         self.slip_to_point_btn.grid(row=3, column=12)
         self.lower_to_upper_btn = Button(self.init_window_name, text="upper", bg="lightblue", width=10,command=self.lower_to_upper_func)  # 调用内部方法  加()为直接调用
         self.lower_to_upper_btn.grid(row=4, column=12)
-
         self.upper_to_lower_btn = Button(self.init_window_name, text="lower", bg="lightblue", width=10,command=self.upper_to_lower_func)  # 调用内部方法  加()为直接调用
         self.upper_to_lower_btn.grid(row=5, column=12)
+        self.charles_hex_to_hex_btn = Button(self.init_window_name, text="charles转hex", bg="lightblue", width=10,command=self.charles_hex_to_hex_func)  # 调用内部方法  加()为直接调用
+        self.charles_hex_to_hex_btn.grid(row=6, column=12)
+        self.compact_hex_to_hex_btn = Button(self.init_window_name, text="compactHex", bg="lightblue", width=10,command=self.compact_hex_to_hex_func)  # 调用内部方法  加()为直接调用
+        self.compact_hex_to_hex_btn.grid(row=7, column=12)
 
         ####初始化字符串用于测试
         ##self.init_data_Text.insert(1.0,'7b22726573756c74223a2274727565222c22737461747573436f6465223a223fc4fe22c2270726f6d707431223a22e8afbf1ffe8aebae68890e58a')
@@ -121,7 +124,7 @@ class MY_GUI():
         if src:
             outstr="byte data[] = {\n"
             for i in range(int(len(src) / 2)):
-                outstr += ("0x%x,"%(bytes.fromhex(src)[i]&0xff))
+                outstr += ("(byte)0x%x,"%(bytes.fromhex(src)[i]&0xff))
             outstr +="\n};"
             self.return_outcome(outstr)
             return
@@ -226,7 +229,10 @@ class MY_GUI():
         src = self.init_data_Text.get(1.0,END).strip()
         liststr= src.split(",")
         for i in range(len(liststr)):
-            liststr[i] = int(liststr[i], 10)
+            if(liststr[i].find('(byte)') >= 0):
+                liststr[i] = int(liststr[i].replace('(byte)',''), 16)
+            else:
+                liststr[i] = int(liststr[i], 10)
         if src:
             try:
                 self.return_outcome(self.listToStr(liststr))
@@ -270,6 +276,22 @@ class MY_GUI():
                 self.result_data_Text.delete(1.0,END)
                 self.result_data_Text.insert(1.0,"\nException: %s" %ex)
         self.result_data_Text.insert(1.0,"lower_to_upper failed")
+    def charles_hex_to_hex_func(self):
+        src = self.init_data_Text.get(1.0,END).strip()
+        data_list = src.split('\n')
+        des = ""
+        for hang in data_list:
+            if(len(hang) > 0x39):
+                hang =hang.strip()
+                tlist = hang.split('\x20\x20')
+                if(len(tlist) < 2):
+                    self.result_data_Text.insert(1.0,"charles_hex_to_hex failed")
+                    return 
+                des += tlist[1]
+        self.return_outcome(des.replace(' ','').replace('\n','').replace('\r','').replace('\t',''))
+    def compact_hex_to_hex_func(self):
+        src = self.init_data_Text.get(1.0,END).strip().replace(' ','').replace('\n','').replace('\r','').replace('\t','')
+        self.return_outcome(src)
 def center_window(root, w, h):
     # 获取屏幕 宽、高
     ws = root.winfo_screenwidth()
