@@ -3,6 +3,7 @@
 # Author: By 空道
 # Created on 10:19 2020/12/5
 
+from sqlite3.dbapi2 import connect
 from tkinter import *
 import hashlib,gzip,zlib
 import time
@@ -110,7 +111,10 @@ class MY_GUI():
         self.charles_hex_to_hex_btn.grid(row=6, column=12)
         self.compact_hex_to_hex_btn = Button(self.init_window_name, text="compactHex", bg="lightblue", width=10,command=self.compact_hex_to_hex_func)  # 调用内部方法  加()为直接调用
         self.compact_hex_to_hex_btn.grid(row=7, column=12)
+        self.python_hex_to_hex_btn = Button(self.init_window_name, text="PyHexToHex", bg="lightblue", width=10,command=self.python_hex_to_hex_func)  # 调用内部方法  加()为直接调用
+        self.python_hex_to_hex_btn.grid(row=8, column=12)
 
+    
         ####初始化字符串用于测试
         ##self.init_data_Text.insert(1.0,'7b22726573756c74223a2274727565222c22737461747573436f6465223a223fc4fe22c2270726f6d707431223a22e8afbf1ffe8aebae68890e58a')
 
@@ -292,6 +296,18 @@ class MY_GUI():
     def compact_hex_to_hex_func(self):
         src = self.init_data_Text.get(1.0,END).strip().replace(' ','').replace('\n','').replace('\r','').replace('\t','')
         self.return_outcome(src)
+    def python_hex_to_hex_func(self):
+        src = self.init_data_Text.get(1.0,END).strip().replace(' ','').replace('\n','').replace('\r','').replace('\t','')
+        listx = src.split(r'\x')
+        strout = ""
+        for str in listx:
+            if(len(str) < 1):
+                connect
+            elif(len(str) < 2):
+                strout += '0' + str
+            else:
+                strout +=str
+        self.return_outcome(strout)
 def center_window(root, w, h):
     # 获取屏幕 宽、高
     ws = root.winfo_screenwidth()
