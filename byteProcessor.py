@@ -285,13 +285,12 @@ class MY_GUI():
         data_list = src.split('\n')
         des = ""
         for hang in data_list:
-            if(len(hang) > 0x39):
-                hang =hang.strip()
-                tlist = hang.split('\x20\x20')
-                if(len(tlist) < 2):
-                    self.result_data_Text.insert(1.0,"charles_hex_to_hex failed")
-                    return 
-                des += tlist[1]
+            hang =hang.strip()
+            tlist = hang.split('\x20\x20')
+            if(len(tlist) < 2):
+                self.result_data_Text.insert(1.0,"charles_hex_to_hex failed")
+                return 
+            des += tlist[1]
         self.return_outcome(des.replace(' ','').replace('\n','').replace('\r','').replace('\t',''))
     def compact_hex_to_hex_func(self):
         src = self.init_data_Text.get(1.0,END).strip().replace(' ','').replace('\n','').replace('\r','').replace('\t','')
