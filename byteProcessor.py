@@ -7,10 +7,10 @@ from sqlite3.dbapi2 import connect
 from tkinter import *
 import hashlib,gzip,zlib
 import time
-import struct
+import struct,sys
 import re
 import os
-import pyperclip
+import pyperclip,subprocess
 from Cocoa import NSRunningApplication, NSApplicationActivateIgnoringOtherApps
 
 LOG_LINE_NUM = 0
@@ -36,6 +36,53 @@ def stringToHexString(str):
 def hexStringToString(hexstr):
     bytesstr = hexStringTobytes(hexstr)
     return bytesstr.decode(encoding='utf-8')
+def byteToList(bs):
+    if sys.version > '3':
+        return list(bs)
+    else:
+        strByteList=[]
+        for i in bs:
+            strByteList.append(ord(i))
+        return strByteList
+    #return list(bs)
+def listToBytes(l):
+    if sys.version > '3':
+        newlist=[]
+        for i in l:
+            newlist.append(i &0xff)
+        return bytes(newlist)
+    else:
+        retstr=bytes()
+        for i in l:
+            retstr += struct.pack("B",i &0xff)
+        return retstr
+def protocDecode(protocPath, data):
+    process = subprocess.Popen([protocPath, '--decode_raw'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+
+    output = error = None
+    try:
+        output, error = process.communicate(data)
+    except OSError:
+        pass
+    finally:
+        if process.poll() != 0:
+            process.wait()
+    return output
+####将pb 中的 8进制转为字符串
+def strOctToStr(data):
+    newlist = []
+    bytelist = byteToList(data)
+    i = 0
+    listsize = len(bytelist)
+    while(i < listsize):
+        if('\\' == bytelist[i]):
+            pass
+            newlist.append(int(bytelist[i + 1] + bytelist[i + 2] + bytelist[i + 3], 8))
+            i = i + 3
+        else:
+            newlist.append(int.from_bytes(bytes(bytelist[i], encoding = "utf8"), byteorder='big'))
+        i = i + 1
+    return (bytesToString(listToBytes(newlist)))
 class MY_GUI():
     def __init__(self,init_window_name):
         self.init_window_name = init_window_name
@@ -111,8 +158,10 @@ class MY_GUI():
         self.charles_hex_to_hex_btn.grid(row=6, column=12)
         self.compact_hex_to_hex_btn = Button(self.init_window_name, text="compactHex", bg="lightblue", width=10,command=self.compact_hex_to_hex_func)  # 调用内部方法  加()为直接调用
         self.compact_hex_to_hex_btn.grid(row=7, column=12)
-        self.python_hex_to_hex_btn = Button(self.init_window_name, text="PyHexToHex", bg="lightblue", width=10,command=self.python_hex_to_hex_func)  # 调用内部方法  加()为直接调用
+        self.python_hex_to_hex_btn = Button(self.init_window_name, text="PyHexToHex", bg="lightblue", width=10,command=self.python_hex_to_hex_func)  # 将 '\x33\x35' 字符串转为 hex
         self.python_hex_to_hex_btn.grid(row=8, column=12)
+        self.python_hex_to_hex_btn = Button(self.init_window_name, text="PbToStr", bg="lightblue", width=10,command=self.python_pb_to_str_func)  # 将pb 字节流转化为明文字符串
+        self.python_hex_to_hex_btn.grid(row=9, column=12)
 
     
         ####初始化字符串用于测试
@@ -307,6 +356,34 @@ class MY_GUI():
             else:
                 strout +=str
         self.return_outcome(strout)
+    def python_pb_to_str_func(self):
+        src = self.init_data_Text.get(1.0,END).strip().replace(' ','').replace('\n','').replace('\r','').replace('\t','')
+        ###打成 app 就无法获取PATH值, 所以写了固定值;
+        ##env_dists = os.environ.get('PATH').split(':')
+        env_dists = ["/usr/local/bin", "/Users/smali/bin", "/usr/local/sbin", "/bin", "/usr/bin", "/usr/sbin"]
+        protoc_path = ''
+        for env_path in env_dists:
+            tmppath = env_path + '/protoc'
+            if (os.path.exists(tmppath)):
+                protoc_path = tmppath
+        if (protoc_path == ''):
+            strout = 'Fail!! not installed protoc!\nTraverse the list of directories:\n'
+            for path in env_dists:
+                strout = strout + path + '\n'
+            self.return_outcome(strout)
+            return
+        strout = bytes.decode(protocDecode(protoc_path, hexStringTobytes(src)),encoding='utf8')
+        if(strout ==''):
+            strout = 'Fail!! decode error!'
+            self.return_outcome(strout)
+            return
+        findlist = re.findall("""\"[\\\\01234567]*\"""", strout)
+        for substr in findlist:
+            if(substr.find('\\') >= 0):
+                newstr = strOctToStr(substr)
+                strout = strout.replace(substr,newstr)
+        self.return_outcome(strout)
+    
 def center_window(root, w, h):
     # 获取屏幕 宽、高
     ws = root.winfo_screenwidth()
