@@ -11,6 +11,7 @@ import struct,sys
 import re
 import os
 import pyperclip,subprocess
+import chardet
 from Cocoa import NSRunningApplication, NSApplicationActivateIgnoringOtherApps
 
 LOG_LINE_NUM = 0
@@ -82,7 +83,8 @@ def strOctToStr(data):
         else:
             newlist.append(int.from_bytes(bytes(bytelist[i], encoding = "utf8"), byteorder='big'))
         i = i + 1
-    return (bytesToString(listToBytes(newlist)))
+    newbytes = listToBytes(newlist)
+    return (bytes.decode(newbytes,encoding=chardet.detect(newbytes)['encoding']))
 class MY_GUI():
     def __init__(self,init_window_name):
         self.init_window_name = init_window_name
