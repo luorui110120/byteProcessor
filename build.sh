@@ -1,2 +1,2 @@
 #!/bin/sh
-pyinstaller --onefile --noconsole -F byteProcessor.py --icon=HexToBytes.icns
+pyinstaller --onefile --noconsole -F -y --hidden-import http.cookies byteProcessor.py --icon=HexToBytes.icns
