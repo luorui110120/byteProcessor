@@ -1,2 +1,3 @@
 ///打包成应用的命令
-pyinstaller --onefile --noconsole -F byteProcessor.py --icon=HexToBytes.icns
+可执行运行 buildapp.sh脚本;
+此工具专门处理一下字节码的操作,方便在逆向中使用;
