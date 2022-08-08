@@ -39,6 +39,9 @@
      <family>Andale Mono</family>
     </font>
    </property>
+   <property name="acceptRichText">
+    <bool>false</bool>
+   </property>
   </widget>
   <widget class="QPushButton" name="btn_bytes_memory_hex">
    <property name="geometry">
@@ -127,6 +130,9 @@
     <font>
      <family>Andale Mono</family>
     </font>
+   </property>
+   <property name="acceptRichText">
+    <bool>false</bool>
    </property>
   </widget>
   <widget class="QLabel" name="label">
