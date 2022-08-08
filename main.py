@@ -67,6 +67,11 @@ def listToBytes(l):
         for i in l:
             retstr += struct.pack("B",i &0xff)
         return retstr
+def listToStr(listbyte):
+    retstr=bytes()
+    for i in listbyte:
+        retstr += struct.pack("B", i &0xff)
+    return retstr.hex()
 def protocDecode(protocPath, data):
     process = subprocess.Popen([protocPath, '--decode_raw'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
@@ -125,7 +130,7 @@ class MyMainForm(QMainWindow, Ui_Form):
         self.textEdit_output.setText(g_README)
 
     def bytes_memory_hex_func(self):
-        src = self.textEdit_input.toPlainText().strip()
+        src = self.textEdit_input.toPlainText().strip().replace('{', '').replace('}', '')
         if src:
             try:
                 liststr = src.split(",")
@@ -134,7 +139,7 @@ class MyMainForm(QMainWindow, Ui_Form):
                         liststr[i] = int(liststr[i].replace('(byte)', ''), 16)
                     else:
                         liststr[i] = int(liststr[i], 10)
-                self.return_outcome(self.listToStr(liststr))
+                self.return_outcome(listToStr(liststr))
                 return
             except Exception as ex:
                 self.return_outcome("\nException: %s" % ex, False)
@@ -142,7 +147,10 @@ class MyMainForm(QMainWindow, Ui_Form):
             self.return_outcome("""
 说明:
 下面这个样的java数组, 转化为  hex输出
-{101,32,42,12,44,(byte)150}   
+输入:
+{101,32,42,12,44,(byte)0xe0,-91}   
+输出:
+65202a0c2ce0a5
         """, False)
 
     def unicode_to_str_func(self):
@@ -157,7 +165,7 @@ class MyMainForm(QMainWindow, Ui_Form):
         else:
             self.return_outcome(r"""
 说明:
-可输入  \u7a7a\u9053 \u8ba1\u7b97\u5668  输出对应中文
+可输入  \u7a7a\u9053 \u8ba1\u7b97\u5668  输出对应中文  "空道计算器"
                         """, False)
 
     def hex_to_java_bytes_func(self):
