@@ -146,7 +146,7 @@ class MyMainForm(QMainWindow, Ui_Form):
         """, False)
 
     def unicode_to_str_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             try:
                 self.return_outcome(src.encode('utf-8').decode('unicode_escape'))
@@ -161,14 +161,17 @@ class MyMainForm(QMainWindow, Ui_Form):
                         """, False)
 
     def hex_to_java_bytes_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
-            outstr = "byte data[] = {\n"
-            for i in range(int(len(src) / 2)):
-                outstr += ("(byte)0x%x," % (bytes.fromhex(src)[i] & 0xff))
-            outstr += "\n};"
-            self.return_outcome(outstr)
-            return
+            try:
+                outstr = "byte data[] = {\n"
+                for i in range(int(len(src) / 2)):
+                    outstr += ("(byte)0x%x," % (bytes.fromhex(src)[i] & 0xff))
+                outstr += "\n};"
+                self.return_outcome(outstr)
+                return
+            except Exception as ex:
+                self.return_outcome("\nException: %s" % ex, False)
         #self.return_outcome("hex to java bytes failed", False)
         else:
             self.return_outcome(r"""
@@ -181,7 +184,7 @@ class MyMainForm(QMainWindow, Ui_Form):
                             """, False)
 
     def hex_to_utf8_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             try:
                 self.return_outcome('%s' % bytes.fromhex(src).decode('utf-8'))
@@ -197,7 +200,7 @@ class MyMainForm(QMainWindow, Ui_Form):
                             """, False)
 
     def hex_to_utf16_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             try:
                 ###//这里有时候会多一个字节出来,容易出错
@@ -215,7 +218,7 @@ class MyMainForm(QMainWindow, Ui_Form):
 """, False)
 
     def gzip_compression_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             try:
                 packbytes = gzip.compress(bytes.fromhex(src))
@@ -231,7 +234,7 @@ class MyMainForm(QMainWindow, Ui_Form):
             """, False)
 
     def gzip_decompression_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             try:
                 unpackbytes = gzip.decompress(bytes.fromhex(src))
@@ -247,7 +250,7 @@ class MyMainForm(QMainWindow, Ui_Form):
                 """, False)
 
     def zlib_compression_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r','').replace('\t', '')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             try:
                 packbytes = zlib.compress(bytes.fromhex(src))
@@ -263,7 +266,7 @@ class MyMainForm(QMainWindow, Ui_Form):
             """, False)
 
     def zlib_decompression_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t','')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             try:
                 unpackbytes = zlib.decompress(bytes.fromhex(src))
@@ -278,7 +281,7 @@ class MyMainForm(QMainWindow, Ui_Form):
 输入Hex 数据进行zlib解压
                 """, False)
     def slip_to_point_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             try:
                 if (len(src) > 0):
@@ -293,7 +296,7 @@ class MyMainForm(QMainWindow, Ui_Form):
                             """, False)
 
     def lower_to_upper_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             try:
                 if (len(src) > 0):
@@ -307,7 +310,7 @@ class MyMainForm(QMainWindow, Ui_Form):
 将所有的小写字母改为大写
                             """, False)
     def upper_to_lower_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             try:
                 if (len(src) > 0):
@@ -346,7 +349,7 @@ class MyMainForm(QMainWindow, Ui_Form):
                     self.return_outcome("charles_hex_to_hex failed", False)
                     return
                 des += tlist[1]
-            self.return_outcome(des.replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', ''))
+            self.return_outcome(des.replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', ''))
         else:
             self.return_outcome("""
 说明:
@@ -363,7 +366,7 @@ class MyMainForm(QMainWindow, Ui_Form):
                             """, False)
 
     def compact_hex_to_hex_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             self.return_outcome(src)
         else:
@@ -374,7 +377,7 @@ AB CC DD ED      ->    AACCDDED
                             """, False)
 
     def python_hex_to_hex_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r','').replace('\t','')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             listx = src.split(r'\x')
             strout = ""
@@ -393,7 +396,7 @@ AB CC DD ED      ->    AACCDDED
                 """, False)
 
     def pb_bin_to_str_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r','').replace('\t','')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             ###打成 app 就无法获取PATH值, 所以写了固定值;
             ##env_dists = os.environ.get('PATH').split(':')
@@ -427,7 +430,7 @@ AB CC DD ED      ->    AACCDDED
                 """, False)
 
     def proto_decode_func(self):
-        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r','').replace('\t','')
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             try:
                 pbJson = parseProtobuf.ParseProtoBufToJson(bytes.fromhex(src))
