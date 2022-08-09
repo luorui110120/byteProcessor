@@ -348,16 +348,19 @@ class MyMainForm(QMainWindow, Ui_Form):
     def charles_hex_to_hex_func(self):
         src = self.textEdit_input.toPlainText().strip()
         if src:
-            data_list = src.split('\n')
-            des = ""
-            for hang in data_list:
-                hang = hang.strip()
-                tlist = hang.split('\x20\x20')
-                if (len(tlist) < 2):
-                    self.return_outcome("charles_hex_to_hex failed", False)
-                    return
-                des += tlist[1]
-            self.return_outcome(des.replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', ''))
+            try:
+                data_list = src.split('\n')
+                des = ""
+                for hang in data_list:
+                    hang = hang.strip()
+                    tlist = hang.split('\x20\x20')
+                    if (len(tlist) < 2):
+                        self.return_outcome("charles_hex_to_hex failed", False)
+                        return
+                    des += tlist[1]
+                self.return_outcome(des.replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', ''))
+            except Exception as ex:
+                self.return_outcome("\nException: %s" % ex, False)
         else:
             self.return_outcome("""
 说明:
@@ -387,16 +390,19 @@ AB CC DD ED      ->    AACCDDED
     def python_hex_to_hex_func(self):
         src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
-            listx = src.split(r'\x')
-            strout = ""
-            for strsub in listx:
-                if (len(strsub) < 1):
-                    continue
-                elif (len(strsub) < 2):
-                    strout += '0' + strsub
-                else:
-                    strout += strsub
-            self.return_outcome(strout)
+            try:
+                listx = src.split(r'\x')
+                strout = ""
+                for strsub in listx:
+                    if (len(strsub) < 1):
+                        continue
+                    elif (len(strsub) < 2):
+                        strout += '0' + strsub
+                    else:
+                        strout += strsub
+                self.return_outcome(strout)
+            except Exception as ex:
+                self.return_outcome("\nException: %s" % ex, False)
         else:
             self.return_outcome(r"""
 说明:
@@ -406,35 +412,38 @@ AB CC DD ED      ->    AACCDDED
     def pb_bin_to_str_func(self):
         src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
-            ###打成 app 就无法获取PATH值, 所以写了固定值;
-            ##env_dists = os.environ.get('PATH').split(':')
-            env_dists = ["/usr/local/bin", "/Users/smali/bin", "/usr/local/sbin", "/bin", "/usr/bin", "/usr/sbin"]
-            protoc_path = ''
-            for env_path in env_dists:
-                tmppath = env_path + '/protoc'
-                if (os.path.exists(tmppath)):
-                    protoc_path = tmppath
-            if (protoc_path == ''):
-                strout = 'Fail!! not installed protoc!\nTraverse the list of directories:\n'
-                for path in env_dists:
-                    strout = strout + path + '\n'
+            try:
+                ###打成 app 就无法获取PATH值, 所以写了固定值;
+                ##env_dists = os.environ.get('PATH').split(':')
+                env_dists = ["/usr/local/bin", "/Users/smali/bin", "/usr/local/sbin", "/bin", "/usr/bin", "/usr/sbin"]
+                protoc_path = ''
+                for env_path in env_dists:
+                    tmppath = env_path + '/protoc'
+                    if (os.path.exists(tmppath)):
+                        protoc_path = tmppath
+                if (protoc_path == ''):
+                    strout = 'Fail!! not installed protoc!\nTraverse the list of directories:\n'
+                    for path in env_dists:
+                        strout = strout + path + '\n'
+                    self.return_outcome(strout)
+                    return
+                strout = bytes.decode(protocDecode(protoc_path, hexStringTobytes(src)), encoding='utf8')
+                if (strout == ''):
+                    strout = 'Fail!! decode error!'
+                    self.return_outcome(strout, False)
+                    return
+                findlist = re.findall("""\"[\\\\01234567]*\"""", strout)
+                for substr in findlist:
+                    if (substr.find('\\') >= 0):
+                        newstr = strOctToStr(substr)
+                        strout = strout.replace(substr, newstr)
                 self.return_outcome(strout)
-                return
-            strout = bytes.decode(protocDecode(protoc_path, hexStringTobytes(src)), encoding='utf8')
-            if (strout == ''):
-                strout = 'Fail!! decode error!'
-                self.return_outcome(strout)
-                return
-            findlist = re.findall("""\"[\\\\01234567]*\"""", strout)
-            for substr in findlist:
-                if (substr.find('\\') >= 0):
-                    newstr = strOctToStr(substr)
-                    strout = strout.replace(substr, newstr)
-            self.return_outcome(strout)
+            except Exception as ex:
+                self.return_outcome("\nException: %s" % ex, False)
         else:
             self.return_outcome(r"""
 说明:
-通过 protoc --decode_raw  命令去解析 protobuf 数据,所以电脑上必须要装有 protoc 工具;
+通过 protoc --decode_raw < protobuf.bin  命令去解析 protobuf 数据,所以电脑上必须要装有 protoc 工具;
                 """, False)
 
     def proto_decode_func(self):
@@ -450,7 +459,9 @@ AB CC DD ED      ->    AACCDDED
         else:
             self.return_outcome("""
 说明:
-输入 ProtoBuf的 Hex 数据, 可输出,下面的json 结构
+输入 ProtoBuf的 Hex 数据, 可输出,json 结构
+输入:0A0638FFA4B29706122C0A0908CAE5A7A0F34010040A0908CAE5A7A0F34010020A0908CAE5A7A0F34010030A0908CAE5A7A0F3401001
+输出:
 {
     "01:00:embedded message": {
         "07:00:Varint": 1659671167
