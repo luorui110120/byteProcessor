@@ -356,6 +356,19 @@
     <string>protoEncode</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="btn_gdb_hex_to_hex">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>440</y>
+     <width>121</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>gdbHexToHex</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

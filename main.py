@@ -124,6 +124,7 @@ class MyMainForm(QMainWindow, Ui_Form):
         self.btn_pb_bin_to_str.clicked.connect(self.pb_bin_to_str_func)
         self.btn_proto_decode.clicked.connect(self.proto_decode_func)
         self.btn_proto_encode.clicked.connect(self.proto_encode_func)
+        self.btn_gdb_hex_to_hex.clicked.connect(self.gdb_hex_to_hex_func)
 
 
 
@@ -527,6 +528,33 @@ AB CC DD ED      ->    AACCDDED
 最后的输出结果
 0A0638FFA4B29706122C0A0908CAE5A7A0F34010040A0908CAE5A7A0F34010020A0908CAE5A7A0F34010030A0908CAE5A7A0F3401001
                 """, False)
+
+    def gdb_hex_to_hex_func(self):
+        src = self.textEdit_input.toPlainText().strip()
+        if src:
+            try:
+                subre = r"""	0x([0-9abcdefABCDEF]+)"""
+                retlist = re.findall(subre, src);
+                strout = ''
+                for val in retlist:
+                    strout += val
+                print(strout)
+                self.return_outcome(strout)
+                return
+            except Exception as ex:
+                self.return_outcome("\nException: %s" % ex, False)
+                return
+        else:
+            self.return_outcome("""
+说明:
+#####输入gdb的 hex数据 直接复制出来的数据格式如下,可直接自动提取hex值;
+0x7718242e58:	0x20	0x1c	0xe5	0x43
+0x7718242e60:	0x0a	0xb9	0xb8	0xb7
+0x7718242e68:	0xdd	0x00	0x00	0x00
+0x7718242e70:	0x47	0xb2	0xaf	0xc9
+###输出结果
+201ce5430ab9b8b7dd00000047b2afc9
+                                        """, False)
 
     # 日志动态打印, flag 表示强制不赋值到剪切板;
     def return_outcome(self, msgstr, flag = True):
