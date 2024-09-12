@@ -103,6 +103,9 @@ class Ui_Form(object):
         self.btn_gdb_hex_to_hex = QtWidgets.QPushButton(Form)
         self.btn_gdb_hex_to_hex.setGeometry(QtCore.QRect(620, 440, 121, 32))
         self.btn_gdb_hex_to_hex.setObjectName("btn_gdb_hex_to_hex")
+        self.btn_byte_reverse_byte = QtWidgets.QPushButton(Form)
+        self.btn_byte_reverse_byte.setGeometry(QtCore.QRect(490, 480, 121, 32))
+        self.btn_byte_reverse_byte.setObjectName("btn_byte_reverse_byte")
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
@@ -133,3 +136,4 @@ class Ui_Form(object):
         self.btn_proto_decode.setText(_translate("Form", "protoDecode"))
         self.btn_proto_encode.setText(_translate("Form", "protoEncode"))
         self.btn_gdb_hex_to_hex.setText(_translate("Form", "gdbHexToHex"))
+        self.btn_byte_reverse_byte.setText(_translate("Form", "字节倒序"))

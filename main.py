@@ -125,8 +125,7 @@ class MyMainForm(QMainWindow, Ui_Form):
         self.btn_proto_decode.clicked.connect(self.proto_decode_func)
         self.btn_proto_encode.clicked.connect(self.proto_encode_func)
         self.btn_gdb_hex_to_hex.clicked.connect(self.gdb_hex_to_hex_func)
-
-
+        self.btn_byte_reverse_byte.clicked.connect(self.byte_reverse_byte_func)
 
         self.textEdit_output.setText(g_README)
 
@@ -408,6 +407,23 @@ AB CC DD ED      ->    AACCDDED
             self.return_outcome(r"""
 说明:
 将python 中的  \x33\xAB\xCC  数据转化为 hex  33ABCC
+                """, False)
+
+    def byte_reverse_byte_func(self):
+        src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
+        if src:
+            try:
+                src_bytes = hexStringTobytes(src)
+                src_list = byteToList(src_bytes)
+                src_list.reverse()
+                des_hex = bytesToHexString(listToBytes(src_list))
+                self.return_outcome(des_hex)
+            except Exception as ex:
+                self.return_outcome("\nException: %s" % ex, False)
+        else:
+            self.return_outcome(r"""
+说明:
+将hex  12 34 56 78  数据转化为 hex  78563412
                 """, False)
 
     def pb_bin_to_str_func(self):

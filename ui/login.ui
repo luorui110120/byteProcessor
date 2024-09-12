@@ -369,6 +369,19 @@
     <string>gdbHexToHex</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="btn_byte_reverse_byte">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>480</y>
+     <width>121</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>字节倒序</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
