@@ -106,13 +106,16 @@ class Ui_Form(object):
         self.btn_byte_reverse_byte = QtWidgets.QPushButton(Form)
         self.btn_byte_reverse_byte.setGeometry(QtCore.QRect(490, 480, 121, 32))
         self.btn_byte_reverse_byte.setObjectName("btn_byte_reverse_byte")
+        self.btn_hex_dump_to_hex = QtWidgets.QPushButton(Form)
+        self.btn_hex_dump_to_hex.setGeometry(QtCore.QRect(620, 480, 121, 32))
+        self.btn_hex_dump_to_hex.setObjectName("btn_hex_dump_to_hex")
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "空道 字节处理_v2.0"))
+        Form.setWindowTitle(_translate("Form", "空道 字节处理_v2.1"))
         self.btn_bytes_memory_hex.setText(_translate("Form", "Bytes转Hex"))
         self.btn_unicode_to_str.setText(_translate("Form", "unicode转字符"))
         self.btn_hex_to_java_bytes.setText(_translate("Form", "Hex转JavaByte"))
@@ -137,3 +140,4 @@ class Ui_Form(object):
         self.btn_proto_encode.setText(_translate("Form", "protoEncode"))
         self.btn_gdb_hex_to_hex.setText(_translate("Form", "gdbHexToHex"))
         self.btn_byte_reverse_byte.setText(_translate("Form", "字节倒序"))
+        self.btn_hex_dump_to_hex.setText(_translate("Form", "HexdumpToHex"))

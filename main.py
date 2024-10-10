@@ -126,6 +126,7 @@ class MyMainForm(QMainWindow, Ui_Form):
         self.btn_proto_encode.clicked.connect(self.proto_encode_func)
         self.btn_gdb_hex_to_hex.clicked.connect(self.gdb_hex_to_hex_func)
         self.btn_byte_reverse_byte.clicked.connect(self.byte_reverse_byte_func)
+        self.btn_hex_dump_to_hex.clicked.connect(self.hex_dump_to_hex_func)
 
         self.textEdit_output.setText(g_README)
 
@@ -571,6 +572,36 @@ AB CC DD ED      ->    AACCDDED
 ###输出结果
 201ce5430ab9b8b7dd00000047b2afc9
                                         """, False)
+
+    def hex_dump_to_hex_func(self):
+        src = self.textEdit_input.toPlainText().strip()
+        if src:
+            try:
+                data_list = src.split('\n')
+                des = ""
+                for hang in data_list:
+                    hang = hang.strip()
+                    tlist = hang.split('\x20\x20')
+                    if (len(tlist) < 2):
+                        self.return_outcome("charles_hex_to_hex failed", False)
+                        return
+                    des += tlist[0].split(':\x20')[1]
+                    if len(tlist[1]) > 0:
+                        des += tlist[1]
+                self.return_outcome(des.replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', ''))
+            except Exception as ex:
+                self.return_outcome("\nException: %s" % ex, False)
+        else:
+            self.return_outcome("""
+    说明:
+    #####输入hexdump的数据 直接复制出来的数据格式如下,可直接自动提取hex值;
+    00000000: 48 54 54 50 2F 31 2E 31  20 32 30 30 20 4F 4B 0D  HTTP/1.1 200 OK.
+    00000010: 0A 53 65 72 76 65 72 3A  20 6F 70 65 6E 72 65 73  .Server: openres
+    000005F0: 4F 4B 22 7D 7D 0D 0A 30  0D 0A 0D 0A              OK"}}..0....
+    000005F0: 4F 4B 22 7D                                       OK"}}..0....
+    ###输出结果
+    485454502F312E3120323030204F4B0D0A5365727665723A206F70656E7265734F4B227D7D0D0A300D0A0D0A4F4B227D
+                                            """, False)
 
     # 日志动态打印, flag 表示强制不赋值到剪切板;
     def return_outcome(self, msgstr, flag = True):
