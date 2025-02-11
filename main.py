@@ -550,7 +550,7 @@ AB CC DD ED      ->    AACCDDED
         src = self.textEdit_input.toPlainText().strip()
         if src:
             try:
-                subre = r"""	0x([0-9abcdefABCDEF]+)"""
+                subre = r"""[ 	]0x([0-9abcdefABCDEF]+)"""
                 retlist = re.findall(subre, src);
                 strout = ''
                 for val in retlist:
