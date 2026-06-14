@@ -246,7 +246,8 @@ class MyMainForm(QMainWindow, Ui_Form):
         src = self.textEdit_input.toPlainText().strip().replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', '')
         if src:
             try:
-                unpackbytes = gzip.decompress(bytes.fromhex(src))
+                decompressor = zlib.decompressobj(zlib.MAX_WBITS | 16)
+                unpackbytes = decompressor.decompress(bytes.fromhex(src)) + decompressor.flush()
                 self.return_outcome(unpackbytes.hex())
                 return
             except Exception as ex:
@@ -350,31 +351,51 @@ class MyMainForm(QMainWindow, Ui_Form):
         src = self.textEdit_input.toPlainText().strip()
         if src:
             try:
-                data_list = src.split('\n')
-                des = ""
-                for hang in data_list:
-                    hang = hang.strip()
-                    tlist = hang.split('\x20\x20')
-                    if (len(tlist) < 2):
-                        self.return_outcome("charles_hex_to_hex failed", False)
-                        return
-                    des += tlist[1]
-                self.return_outcome(des.replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\x00', ''))
+                hex_pat = re.compile(r'^[0-9a-fA-F]{2}$')
+                addr_pat = re.compile(r'^[0-9a-fA-F]{4,}:?$')
+                BYTES_PER_LINE = 16
+                des = []
+                for line in src.split('\n'):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    # 按 2+ 连续空白切分: 通常分隔 [地址] / [hex 段] / [ASCII]
+                    blocks = re.split(r'\s{2,}', line)
+                    line_hex = []
+                    stop = False
+                    for bi, block in enumerate(blocks):
+                        if stop or len(line_hex) >= BYTES_PER_LINE:
+                            break
+                        for ti, tok in enumerate(block.split()):
+                            # 第一段首个 token 若是地址(4+ hex / 含冒号), 跳过
+                            if bi == 0 and ti == 0 and addr_pat.match(tok) and not hex_pat.match(tok):
+                                continue
+                            if hex_pat.match(tok) and len(line_hex) < BYTES_PER_LINE:
+                                line_hex.append(tok)
+                            else:
+                                # 进入 ASCII 区或异常 token, 整行结束
+                                stop = True
+                                break
+                    des.extend(line_hex)
+                self.return_outcome(''.join(des))
             except Exception as ex:
                 self.return_outcome("\nException: %s" % ex, False)
         else:
-            self.return_outcome("""
+            self.return_outcome(r"""
 说明:
-输入重charles 直接复制出来的数据格式如下,可直接自动提取中间的hex值;
-00000000  0a 06 38 c6 a5 b2 97 06 12 c7 02 0a b4 01 09 00     8             
+输入 charles / hexdump 复制出来的数据格式, 自动提取中间的 hex 值, 兼容下面两种格式:
+
+格式1 (Charles 经典格式, 地址无冒号, 16 字节连续排列):
+00000000  0a 06 38 c6 a5 b2 97 06 12 c7 02 0a b4 01 09 00     8
 00000010  00 00 00 a1 d8 33 41 11 00 00 00 00 2f f9 36 41        3A     / 6A
 00000020  20 50 28 96 06 30 f7 09 38 92 01 40 64 58 01 68    P(  0  8  @dX h
-00000030  50 f0 01 e8 07 9a 02 11 08 01 10 08 21 00 00 00   P           !   
-00000040  00 00 86 a2 40 28 02 30 01 9a 02 0f 08 02 10 08       @( 0        
-00000050  21 00 00 00 00 00 86 a2 40 28 01 9a 02 11 08 05   !       @(      
-00000060  10 08 21 00 00 00 00 00 86 a2 40 28 01 30 01 9a     !       @( 0  
-00000070  02 11 08 07 10 08 21 00 00 00 00 00 86 a2 40 28         !       @(
-00000080  02 30 01 9a 02 11 08 0a 10 08 21 00 00 00 00 00    0        !     
+
+格式2 (地址带冒号, 8+8 中间双空格分隔):
+00000000: 1F 8B 08 00 00 00 00 00  00 FF BC 59 EB 72 DB 36  ...........Y.r.6
+00000010: 16 FE DF A7 40 B8 B3 91  D4 8A A4 E5 B8 49 AA 58  ..ߧ@...Ԋ...I.X
+00000020: DE BA CE 65 32 4E 6A 6F  EC 4C 67 D7 A3 6A 60 12  ޺.e2Njo.Lgףj`.
+
+每行最多识别 16 字节, ASCII 区中 "形似 hex" 的串(如 3A / 6A)不会被误吸入.
                             """, False)
 
     def compact_hex_to_hex_func(self):
